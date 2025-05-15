@@ -1,0 +1,4 @@
+.venv/
+.env
+train.ipynb
+__pycache__
