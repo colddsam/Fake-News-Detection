@@ -2,10 +2,18 @@ import { NextResponse } from "next/server";
 import { JSDOM } from 'jsdom';
 import { fetchSearchResults } from "@/lib/utils";
 import { analyzeWithGemini, generateImageCheckPrompt, generateTextCheckPrompt } from "@/lib/gemini";
-
+const ALLOWED_ORIGINS = [
+  process.env.EXTENSION!,
+  process.env.BROWSER!
+];
 
 export async function POST(request: Request) {
   try {
+        const origin = request.headers.get("origin");
+    
+        if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
+          return NextResponse.json({ error: "Unauthorized access" }, { status: 403 });
+        }
     const { url, claim = "verify the claim and check if it is true?",type="text" } = await request.json();
 
     const response = await fetch(url);

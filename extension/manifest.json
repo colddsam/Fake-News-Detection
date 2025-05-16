@@ -1,35 +1,29 @@
 {
-    "manifest_version": 3,
-    "name": "Fake News Detector",
-    "version": "1.0",
-    "description": "Detect potentially fake news articles and social media posts",
-    "permissions": [
-      "activeTab",
-      "contextMenus",
-      "storage",
-      "scripting"
-    ],
-    "host_permissions": [
-      "<your-api-domain>/*"
-    ],
-    "action": {
-      "default_popup": "popup/popup.html",
-      "default_icon": {
-        "48": "icons/icon48.png",
-        "128": "icons/icon128.png"
-      }
-    },
-    "icons": {
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    },
-    "background": {
-      "service_worker": "background.js"
-    },
-    "content_scripts": [
-      {
-        "matches": ["<all_urls>"],
-        "js": ["content.js"]
-      }
-    ]
+  "manifest_version": 3,
+  "name": "Fake News Detector",
+  "version": "1.0",
+  "description": "Detects fake text, images, and social news.",
+"host_permissions": [
+  "https://fake-news-detection-inky.vercel.app/*"
+],
+"permissions": ["scripting", "storage", "activeTab"],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.jpeg",
+      "48": "icons/icon48.jpeg",
+      "128": "icons/icon128.jpeg"
+    }
+  },
+"content_security_policy": {
+  "extension_pages": "script-src 'self'; object-src 'none';"
+},
+
+  "web_accessible_resources": [
+  {
+    "resources": ["config.js"],
+    "matches": ["<all_urls>"]
   }
+]
+}

@@ -5,8 +5,18 @@ import { writeFile } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
 
+const ALLOWED_ORIGINS = [
+  process.env.EXTENSION!,
+  process.env.BROWSER!
+];
+
 export async function POST(request: Request) {
   try {
+        const origin = request.headers.get("origin");
+    
+        if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
+          return NextResponse.json({ error: "Unauthorized access" }, { status: 403 });
+        }
     const formData = await request.formData();
     const file = formData.get("file") as File;
     const query = formData.get("query") as string;
