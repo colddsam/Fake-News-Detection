@@ -1,4 +1,3 @@
-# main.py
 from fastapi import FastAPI, Request,UploadFile,File,Form
 from pydantic import BaseModel
 from bs4 import BeautifulSoup
@@ -7,6 +6,25 @@ from search import fetch_search_results
 from verify import analyze_text_news,analyze_image_news,analyze_social_news
 import tempfile
 import os
+from PIL import Image
+
+SUPPORTED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp']
+
+def convert_to_supported_format(image_path: str) -> str:
+    _, ext = os.path.splitext(image_path)
+    ext = ext.lower()
+    if ext in SUPPORTED_EXTENSIONS:
+        return image_path
+
+    try:
+        img = Image.open(image_path)
+        new_path = image_path.rsplit('.', 1)[0] + '_converted.png'
+        img.save(new_path, format='PNG')
+        return new_path
+    except Exception as e:
+        raise RuntimeError(f"Failed to convert image: {e}")
+
+
 
 app = FastAPI()
 
@@ -16,9 +34,10 @@ class NewsInput(BaseModel):
 class SocialNewsInput(BaseModel):
     url:str
     claim:str="verify the claim and check if it is true?"
+    
 
 @app.post("/verify_image_news")
-async def verify_news(file:UploadFile=File(...),query:str=Form(...)):
+async def verify_news(file:UploadFile=File(...),query:str=Form(None)):
     filename=file.filename
     ext = os.path.splitext(filename)[-1]
     
@@ -28,7 +47,7 @@ async def verify_news(file:UploadFile=File(...),query:str=Form(...)):
     
     
     search_results=fetch_search_results(query=query) if query else []
-    
+    image_path = convert_to_supported_format(image_path)
     result=analyze_image_news(image_path=image_path,claim_text=query or "check if this incident fake or real?",search_results=search_results)
     return result
     
@@ -60,6 +79,7 @@ async def verify_news(data:SocialNewsInput):
     )
     
     search_results=fetch_search_results(query=claim) if claim else []
+    
     result=analyze_social_news(image_path=image_url,claim_text=claim,search_results=search_results)
     return result
     
