@@ -3,16 +3,17 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { CheckCircle, XCircle, AlertTriangle, ExternalLink, ArrowLeft } from "lucide-react"
+import { CheckCircle, XCircle, AlertTriangle, ExternalLink, ArrowLeft, User } from 'lucide-react';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
-import TruthScoreChart from "@/components/truth-score-chart"
 import { useToast } from "@/components/ui/use-toast"
+import TruthScoreChart from "@/components/truth-score-chart"
+import { useAuth } from "@/contexts/auth-context"
 
 type VerificationResult = {
+  title: string
   truth_score: number
   verdict: string
   reason: string
@@ -20,66 +21,110 @@ type VerificationResult = {
 }
 
 export default function ResultPage() {
+  const [hasSaved, setHasSaved] = useState(false)
+  const { user,isLoading,saveVerification } = useAuth();
   const router = useRouter()
   const { toast } = useToast()
+
   const [result, setResult] = useState<VerificationResult | null>(null)
   const [verificationType, setVerificationType] = useState<string>("")
   const [loading, setLoading] = useState(true)
 
+  const [redirecting, setRedirecting] = useState(false)
+
+// useEffect(() => {
+//   if (!isLoading && !user) {
+//     setRedirecting(true)
+//     router.push("/sign-in")
+//   }
+// }, [isLoading, user, router])  
+
   useEffect(() => {
-    const storedResult = sessionStorage.getItem("verificationResult")
-    const storedType = sessionStorage.getItem("verificationType")
-
-    if (storedResult) {
-      try {
-        setResult(JSON.parse(storedResult))
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to load verification result",
-          variant: "destructive",
-        })
-        router.push("/")
+    const loadResult = async () => {
+      if (typeof window !== "undefined" && !isLoading && !user) {
+        router.replace("/sign-in")
       }
-    } else {
-      router.push("/")
-    }
+      else {
+        try {
+          const storedResult = sessionStorage.getItem("verificationResult")
+          const storedType = sessionStorage.getItem("verificationType")
+          const savedFireStore = sessionStorage.getItem("savedFireStore")
+  
+          // if (!storedResult || !storedType) throw new Error("Missing data in sessionStorage")
+          if (!storedResult || !storedType) {
+            setRedirecting(true)
+            router.push("/")
+          }
+          else {
+            const parsedResult: VerificationResult = JSON.parse(storedResult)
+  
+            if (
+              typeof parsedResult.title !== "string" ||
+              typeof parsedResult.truth_score !== "number" ||
+              typeof parsedResult.verdict !== "string" ||
+              typeof parsedResult.reason !== "string" ||
+              !Array.isArray(parsedResult.evidence_links)
+            ) {
+              throw new Error("Malformed result data")
+            }
+  
+            setResult(parsedResult)
+            setVerificationType(storedType)
+            if (savedFireStore === "False" && !hasSaved) {
+              await saveVerification({ ...parsedResult, verificationType: storedType })
+              sessionStorage.setItem("savedFireStore", "True")
+              setHasSaved(true)
 
-    if (storedType) {
-      setVerificationType(storedType)
+            }
+          }
+  
+        } catch (error) {
+          console.error("Failed to load result:", error)
+          toast({
+            title: "Error loading result",
+            description: "Please try verifying again.",
+            variant: "destructive",
+          })
+          router.push("/")
+        } finally {
+          setLoading(false)
+        }
+      }
     }
-
-    setLoading(false)
-  }, [router, toast])
+  
+    loadResult()
+  }, [router, toast,isLoading, user])
+  
+  if (isLoading || redirecting) {
+    return (
+      <div className="flex justify-center items-center min-h-[70vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary" />
+      </div>
+    )
+  }
 
   const getVerdictIcon = () => {
     if (!result) return null
-    
-    if (result.truth_score >= 70) {
-      return <CheckCircle className="h-12 w-12 text-green-500" />
-    } else if (result.truth_score >= 40) {
-      return <AlertTriangle className="h-12 w-12 text-yellow-500" />
-    } else {
-      return <XCircle className="h-12 w-12 text-red-500" />
-    }
+    const score = result.truth_score
+
+    if (score >= 70) return <CheckCircle className="h-12 w-12 text-green-500" />
+    if (score >= 40) return <AlertTriangle className="h-12 w-12 text-yellow-500" />
+    return <XCircle className="h-12 w-12 text-red-500" />
   }
 
   const getVerdictColor = () => {
     if (!result) return ""
-    
-    if (result.truth_score >= 70) {
-      return "text-green-500"
-    } else if (result.truth_score >= 40) {
-      return "text-yellow-500"
-    } else {
-      return "text-red-500"
-    }
+    const score = result.truth_score
+
+    if (score >= 70) return "text-green-500"
+    if (score >= 40) return "text-yellow-500"
+    return "text-red-500"
   }
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[70vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary" />
       </div>
     )
   }
@@ -97,8 +142,7 @@ export default function ResultPage() {
   }
 
   return (
-<div className="container mx-auto px-4 pt-24 pb-12">
-
+    <div className="container mx-auto px-4 pt-24 pb-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -110,8 +154,8 @@ export default function ResultPage() {
           Back
         </Button>
 
-        <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center">
-          {verificationType === "image" ? "Image" : "Content"} Verification Result
+        <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center capitalize">
+          {verificationType} Verification Result
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -121,16 +165,14 @@ export default function ResultPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <Card className="bg-background/50 backdrop-blur-md">
-              <CardContent className="p-6">
-                <div className="flex flex-col items-center justify-center h-full">
-                  <div className="mb-6">
-                    <TruthScoreChart score={result.truth_score} />
-                  </div>
-                  <h2 className="text-2xl font-bold mb-2">Truth Score</h2>
-                  <p className="text-muted-foreground text-center">
-                    {result.truth_score}/100 confidence level
-                  </p>
+              <CardContent className="p-6 flex flex-col items-center justify-center h-full">
+                <div className="mb-6">
+                  <TruthScoreChart score={result.truth_score} />
                 </div>
+                <h2 className="text-2xl font-bold mb-2">Truth Score</h2>
+                <p className="text-muted-foreground text-center">
+                  {result.truth_score}/100 confidence level
+                </p>
               </CardContent>
             </Card>
           </motion.div>
@@ -168,14 +210,22 @@ export default function ResultPage() {
                   {result.evidence_links.map((link, index) => (
                     <div key={index} className="border rounded-lg p-4">
                       <div className="flex justify-between items-center">
-                        <p className="text-sm font-medium truncate">
-                          {new URL(link).hostname}
-                        </p>
-                        <Button variant="ghost" size="sm" asChild>
-                          <a href={link} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        </Button>
+                      <p className="text-sm font-medium truncate">
+  {(() => {
+    try {
+      return new URL(link).hostname
+    } catch {
+      return link
+    }
+  })()}
+</p>
+
+<Button asChild>
+  <a href={link} target="_blank" rel="noopener noreferrer" aria-label="Open evidence link">
+    <ExternalLink className="h-4 w-4" />
+  </a>
+</Button>
+
                       </div>
                     </div>
                   ))}
@@ -187,16 +237,8 @@ export default function ResultPage() {
 
         <div className="flex justify-center mt-8">
           <Button asChild size="lg">
-          <Link
-  href={
-    verificationType === "social"
-      ? "/verify/social"
-      : verificationType === "image"
-      ? "/verify/image"
-      : "/verify/text"
-  }
->
-  Verify Another
+          <Link href={`/verify/${verificationType || "text"}`}>
+  <Button size="lg">Verify Another</Button>
 </Link>
 
           </Button>

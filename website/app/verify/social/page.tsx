@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
 import { verifySocialNews } from "@/lib/verification"
+import { useAuth } from "@/contexts/auth-context"
+import Link from "next/link"
 
 type FormData = {
   url: string
@@ -21,6 +23,7 @@ type FormData = {
 export default function VerifySocialPage() {
   const router = useRouter()
   const { toast } = useToast()
+  const { user, deductCredits } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [verifyType, setVerifyType] = useState<"text" | "image">("text")
 
@@ -32,6 +35,19 @@ export default function VerifySocialPage() {
   } = useForm<FormData>()
 
   const onSubmit = async (data: FormData) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to verify content.",
+        variant: "destructive",
+      })
+      router.push("/sign-in")
+      return
+    }
+
+    if (!deductCredits(5)) {
+      return
+    }
     setIsLoading(true)
     try {
       if (!data.url.trim()) throw new Error("Please enter a valid URL")
@@ -40,6 +56,7 @@ export default function VerifySocialPage() {
 
       sessionStorage.setItem("verificationResult", JSON.stringify(result))
       sessionStorage.setItem("verificationType", "social")
+      sessionStorage.setItem("savedFireStore", "False")
 
       router.push("/result")
     } catch (error) {
@@ -125,9 +142,26 @@ export default function VerifySocialPage() {
               />
 
               <input type="hidden" value={verifyType} {...register("verifyType")} />
+              <div className="mt-4 flex flex-col space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-400">Cost: 5 credit</span>
+                    {user ? (
+                      <span className="text-sm text-gray-400">
+                        Your credits: <span className="font-bold text-primary">{user.credits}</span>
+                      </span>
+                    ) : (
+                      <span className="text-sm text-gray-400">
+                        <Button variant="link" className="p-0 h-auto text-primary" asChild>
+                          <Link href="/sign-in">Sign in</Link>
+                        </Button>{" "}
+                        to use credits
+                      </span>
+                    )}
+                  </div>
+                </div>
 
               <motion.div className="mt-6 flex justify-center" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                <Button type="submit" size="lg" disabled={isLoading} className="w-full md:w-auto px-8 py-6 text-lg">
+                <Button type="submit" size="lg" disabled={isLoading || !user || user.credits<5} className="w-full md:w-auto px-8 py-6 text-lg">
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -138,6 +172,15 @@ export default function VerifySocialPage() {
                   )}
                 </Button>
               </motion.div>
+              {!user && (
+                  <p className="text-center text-sm text-gray-400 mt-4">
+                    Please{" "}
+                    <Link href="/sign-in" className="text-primary hover:underline">
+                      sign in
+                    </Link>{" "}
+                    to verify content
+                  </p>
+                )}
             </form>
           </CardContent>
         </Card>

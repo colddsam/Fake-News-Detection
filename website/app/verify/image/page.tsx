@@ -11,10 +11,13 @@ import { useToast } from "@/components/ui/use-toast"
 import Image from "next/image"
 import { Textarea } from "@/components/ui/textarea"
 import { verifyImageNews } from "@/lib/verification"
+import { useAuth } from "@/contexts/auth-context"
+import Link from "next/link"
 
 export default function VerifyImagePage() {
   const router = useRouter()
   const { toast } = useToast()
+  const { user, deductCredits } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [file, setFile] = useState<File | null>(null)
@@ -43,6 +46,16 @@ export default function VerifyImagePage() {
   }
 
   const onSubmit = async (data: { claim: string }) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to verify images.",
+        variant: "destructive",
+      })
+      router.push("/sign-in")
+      return
+    }
+
     if (!file) {
       toast({
         title: "Error",
@@ -51,7 +64,9 @@ export default function VerifyImagePage() {
       })
       return
     }
-
+    if (!deductCredits(10)) {
+      return
+    }
     setIsLoading(true)
 
     try {
@@ -59,6 +74,7 @@ export default function VerifyImagePage() {
       
       sessionStorage.setItem("verificationResult", JSON.stringify(result))
       sessionStorage.setItem("verificationType", "image")
+      sessionStorage.setItem("savedFireStore", "False")
       router.push("/result")
     } catch (error) {
       toast({
@@ -151,6 +167,24 @@ export default function VerifyImagePage() {
                 {...register("claim")}
               />
 
+<div className="flex flex-col space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-400">Cost: 10 credit</span>
+                  {user ? (
+                    <span className="text-sm text-gray-400">
+                      Your credits: <span className="font-bold text-primary">{user.credits}</span>
+                    </span>
+                  ) : (
+                    <span className="text-sm text-gray-400">
+                      <Button variant="link" className="p-0 h-auto text-primary" asChild>
+                        <Link href="/sign-in">Sign in</Link>
+                      </Button>{" "}
+                      to use credits
+                    </span>
+                  )}
+                </div>
+              </div>
+
               <motion.div 
                 className="flex justify-center" 
                 whileHover={{ scale: 1.03 }} 
@@ -159,7 +193,8 @@ export default function VerifyImagePage() {
                 <Button
                   type="submit"
                   size="lg"
-                  disabled={isLoading || !file}
+                  // disabled={isLoading || !file}
+                  disabled={isLoading || !user || !file || user.credits<10}
                   className="w-full md:w-auto px-8 py-6 text-lg"
                 >
                   {isLoading ? (
@@ -175,6 +210,15 @@ export default function VerifyImagePage() {
                   )}
                 </Button>
               </motion.div>
+              {!user && (
+                <p className="text-center text-sm text-gray-400 mt-4">
+                  Please{" "}
+                  <Link href="/sign-in" className="text-primary hover:underline">
+                    sign in
+                  </Link>{" "}
+                  to verify images
+                </p>
+              )}
             </form>
           </CardContent>
         </Card>

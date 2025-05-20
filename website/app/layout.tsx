@@ -5,6 +5,8 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import { AuthProvider } from "@/contexts/auth-context"
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -20,7 +22,7 @@ export const metadata: Metadata = {
     "news authenticity",
     "AI fake detector"
   ],
-  metadataBase: new URL("https://fake-news-detection-inky.vercel.app/"), // Replace with your domain
+  metadataBase: new URL("https://fake-news-detection-inky.vercel.app/"), 
   openGraph: {
     title: "Truth Guardian AI - Fake News Detection",
     description: "AI tool to detect fake news across text, images, and social media.",
@@ -68,12 +70,15 @@ export default function RootLayout({
     className={`${inter.className} min-h-screen bg-black text-white`}
     itemScope
     itemType="http://schema.org/WebPage"
-  >
+      >
+        <AuthProvider>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <Navbar />
           <main>{children}</main>
           <Footer />
+          <Toaster />
         </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   )

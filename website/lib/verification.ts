@@ -1,6 +1,5 @@
-import { GEMINI_API_KEY } from "./utils";
-
 interface VerificationResult {
+  title: string;
   truth_score: number;
   verdict: string;
   reason: string;

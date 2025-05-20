@@ -1,8 +1,9 @@
 import { GEMINI_API_KEY } from "./utils";
 
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent";
+const GEMINI_API_URL = process.env.GEMINI_API_URL!;
 
 interface GeminiResponse {
+  title: string;
   truth_score: number;
   verdict: string;
   reason: string;
@@ -67,6 +68,7 @@ export async function analyzeWithGemini(prompt: string, imageData?: { mimeType: 
   } catch (error) {
     console.error("Gemini API error:", error);
     return {
+      title:"Error",
       truth_score: 0,
       verdict: "Error",
       reason: error instanceof Error ? error.message : "API request failed",
@@ -90,6 +92,7 @@ export async function analyzeWithGemini(prompt: string, imageData?: { mimeType: 
     }
   
     return {
+      title:"Error",
       truth_score: 0,
       verdict: "Error",
       reason: "Could not parse response",
@@ -110,6 +113,7 @@ export function generateTextCheckPrompt(newsText: string, searchResults: any[]):
   
     prompt += `\nJSON Response Format:
     {
+      "title": "string (short title according to the query)",
       "truth_score": "number (0-100)",
       "verdict": "Likely True | Possibly Fake | Unverifiable",
       "reason": "string (detailed analysis)",
@@ -133,6 +137,7 @@ News articles:\n`;
 
   prompt += `Respond in this JSON format:
 {
+  "title": "string (short title according to the query)",
   "truth_score": int (0-100),
   "verdict": "Likely True | Possibly Fake | Unverifiable",
   "reason": "short explanation",
