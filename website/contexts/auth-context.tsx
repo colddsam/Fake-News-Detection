@@ -203,18 +203,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           credits,
           avatar: user.photoURL || "",
         })
+        setUser({
+          id: user.uid,
+          name: user.displayName || "Google User",
+          email: user.email || "",
+          credits,
+          avatar: user.photoURL || undefined,
+        })
+
       } else {
         const data = userDoc.data()
-        credits = data.credits
+        setUser({
+          id: data.id,
+          name: data.name || "Google User",
+          email: data.email || "",
+          credits: data.credits,
+          avatar: data.avatar || undefined,
+        })
       }
 
-      setUser({
-        id: user.uid,
-        name: user.displayName || "Google User",
-        email: user.email || "",
-        credits,
-        avatar: user.photoURL || undefined,
-      })
+      
 
       toast({
         title: "Signed in with Google",

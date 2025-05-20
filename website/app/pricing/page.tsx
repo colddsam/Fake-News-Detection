@@ -1,11 +1,14 @@
 "use client"
 import { motion } from "framer-motion"
+import { useEffect, useState } from "react";
 import { CreditCard, Check, Zap, Shield, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/contexts/auth-context"
 import AnimatedBackground from "@/components/animated-background"
 import Link from "next/link"
+import { getUserCurrencyInfo } from "@/lib/currency";
+import { convertCurrency } from "@/lib/exchange";
 
 
 const creditPackages = [
@@ -46,7 +49,28 @@ const creditPackages = [
 
 export default function CreditsPage() {
   const { user } = useAuth()
+  const [localCurrency, setLocalCurrency] = useState("INR");
+  const [currencySymbol, setCurrencySymbol] = useState("₹");
+  const [localizedPackages, setLocalizedPackages] = useState(creditPackages);
 
+  useEffect(() => {
+    const fetchCurrency = async () => {
+      const info = await getUserCurrencyInfo();
+      setLocalCurrency(info.currency);
+      setCurrencySymbol(info.currencySymbol);
+
+      const converted = await Promise.all(
+        creditPackages.map(async (pkg) => ({
+          ...pkg,
+          price: await convertCurrency(pkg.price, "INR", info.currency),
+        }))
+      );
+
+      setLocalizedPackages(converted);
+    };
+
+    fetchCurrency();
+  }, []);
 
 
   return (
@@ -71,7 +95,7 @@ export default function CreditsPage() {
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
-  {creditPackages.map((pkg) => (
+  {localizedPackages.map((pkg) => (
     <motion.div
       key={pkg.id}
       whileHover={{ y: -5, scale: 1.02 }}
@@ -100,8 +124,8 @@ export default function CreditsPage() {
   <CardContent className="flex-1 flex flex-col justify-between pb-2">
     <div className="text-center">
       <p className="text-3xl font-bold mb-4">
-        ₹{pkg.price}
-        <span className="text-sm text-gray-400 font-normal"> INR</span>
+      {currencySymbol}{pkg.price}
+      <span className="text-sm text-gray-400 font-normal"> {localCurrency}</span>
       </p>
       <ul className="space-y-2 text-left px-4">
         {pkg.features.map((feature, index) => (

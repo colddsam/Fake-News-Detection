@@ -8,11 +8,11 @@ const razorpay = new Razorpay({
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { amount, packageId } = body;
+  const { amount, packageId, currency } = body;
 
   const options = {
     amount: amount * 100, 
-    currency: "INR",
+    currency: currency || "INR",
     receipt: `rcptid_${packageId}_${Date.now()}`,
   };
 
