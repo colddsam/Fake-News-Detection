@@ -1,9 +1,18 @@
-# *
+# Allow all user agents full access
 User-agent: *
-Allow: /
+Disallow:
 
-# Host
-Host: https://fake-news-detection-inky.vercel.app/
+# Prevent crawling of unnecessary files or folders (optional but recommended)
+Disallow: /api/
+Disallow: /admin/
+Disallow: /checkout/
+Disallow: /transaction/
 
-# Sitemaps
-Sitemap: https://fake-news-detection-inky.vercel.app/sitemap.xml
+# Specify the preferred domain
+Host: https://truthguardian.vercel.app
+
+# Sitemap location
+Sitemap: https://truthguardian.vercel.app/sitemap.xml
+
+# Crawl-delay for performance (optional)
+# Crawl-delay: 10
