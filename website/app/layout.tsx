@@ -29,11 +29,11 @@ export const metadata: Metadata = {
     "fact checker tool",
     "AI media scanner",
   ],
-  metadataBase: new URL("https://fake-news-detection-inky.vercel.app/"),
+  metadataBase: new URL("https://truthguardian.vercel.app/"),
   openGraph: {
     title: "Truth Guardian AI - Fake News Detection",
     description: "An AI-powered tool to verify news, social posts, and images for misinformation.",
-    url: "https://fake-news-detection-inky.vercel.app/",
+    url: "https://truthguardian.vercel.app/",
     siteName: "Truth Guardian AI",
     images: [
       {
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
   creator: "colddsam",
   publisher: "colddsam",
   alternates: {
-    canonical: "https://fake-news-detection-inky.vercel.app/",
+    canonical: "https://truthguardian.vercel.app/",
   },
   robots: {
     index: true,
@@ -102,7 +102,7 @@ export default function RootLayout({
             "@context": "https://schema.org",
             "@type": "WebSite",
             name: "Truth Guardian AI",
-            url: "https://fake-news-detection-inky.vercel.app/",
+            url: "https://truthguardian.vercel.app/",
             description:
               "Truth Guardian AI is an advanced AI platform that helps detect fake news from text, images, and social media posts.",
             publisher: {

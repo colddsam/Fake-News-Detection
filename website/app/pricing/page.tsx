@@ -1,4 +1,6 @@
 "use client"
+import Head from "next/head";
+
 import { motion } from "framer-motion"
 import { useEffect, useState } from "react";
 import { CreditCard, Check, Zap, Shield, Sparkles } from "lucide-react"
@@ -28,7 +30,7 @@ const creditPackages = [
     price: 40,
     popular: true,
     icon: <Zap className="h-6 w-6 text-yellow-500" />,
-    features: ["30 verification credits", "All verification types", "Priority processing", "Detailed reports"],
+    features: ["50 verification credits", "All verification types", "Priority processing", "Detailed reports"],
   },
   {
     id: "premium",
@@ -38,7 +40,7 @@ const creditPackages = [
     popular: false,
     icon: <Sparkles className="h-6 w-6 text-pink-500" />,
     features: [
-      "100 verification credits",
+      "120 verification credits",
       "All verification types",
       "Priority processing",
       "Detailed reports",
@@ -74,7 +76,64 @@ export default function CreditsPage() {
 
 
   return (
-    <div className="relative min-h-screen py-16">
+    <>
+      <Head>
+  <script
+    type="application/ld+json"
+    dangerouslySetInnerHTML={{
+      __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: "Truth Guardian AI Credit Packages",
+        description: "Flexible AI credit packages for verifying content and detecting fake news.",
+        brand: {
+          "@type": "Organization",
+          name: "Truth Guardian AI",
+        },
+        offers: [
+          {
+            "@type": "Offer",
+            url: "https://truthguardian.vercel.app/pricing",
+            priceCurrency: localCurrency,
+            price: localizedPackages[0].price,
+            availability: "https://schema.org/InStock",
+            itemOffered: {
+              "@type": "Service",
+              name: "Basic Package",
+              description: "10 verification credits including text and social verification",
+            },
+          },
+          {
+            "@type": "Offer",
+            url: "https://truthguardian.vercel.app/pricing",
+            priceCurrency: localCurrency,
+            price: localizedPackages[1].price,
+            availability: "https://schema.org/InStock",
+            itemOffered: {
+              "@type": "Service",
+              name: "Standard Package",
+              description: "50 verification credits with priority and reports",
+            },
+          },
+          {
+            "@type": "Offer",
+            url: "https://truthguardian.vercel.app/pricing",
+            priceCurrency: localCurrency,
+            price: localizedPackages[2].price,
+            availability: "https://schema.org/InStock",
+            itemOffered: {
+              "@type": "Service",
+              name: "Premium Package",
+              description: "120 verification credits with all features and API access",
+            },
+          }
+        ]
+      })
+    }}
+  />
+</Head>
+
+    <main className="relative min-h-screen py-16" itemScope itemType="http://schema.org/WebPage">
       <div className="absolute inset-0 z-0">
         <AnimatedBackground />
       </div>
@@ -216,6 +275,7 @@ export default function CreditsPage() {
           </div>
         </motion.div>
       </div>
-    </div>
+    </main>
+    </>
   )
 }
