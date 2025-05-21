@@ -124,21 +124,20 @@ export default function ShareModal({ open, onOpenChange, title, url }: ShareModa
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md bg-gray-900 border-gray-800">
+            <DialogContent className="w-full max-w-lg bg-gray-900 border border-gray-800 px-6 py-5 rounded-xl">
                 <DialogHeader>
-                <DialogTitle className="flex items-center">
-    Share Verification Result
-</DialogTitle>
-
-                    <DialogDescription>Share this verification result with others via your preferred platform</DialogDescription>
+                    <DialogTitle className="text-lg text-white">Share Verification Result</DialogTitle>
+                    <DialogDescription className="text-gray-400 text-sm">
+                        Share this verification result with others via your preferred platform
+                    </DialogDescription>
                 </DialogHeader>
 
-                <div className="grid grid-cols-4 gap-4 py-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
                     {shareOptions.map((option) => (
                         <Button
                             key={option.name}
                             variant="outline"
-                            className={`flex flex-col items-center justify-center h-20 ${option.color} text-white border-none`}
+                            className={`flex flex-col items-center justify-center h-20 rounded-lg ${option.color} text-white border-none overflow-hidden`}
                             onClick={() => {
                                 option.action()
                                 if (option.name !== "Copy Link") {
@@ -147,16 +146,16 @@ export default function ShareModal({ open, onOpenChange, title, url }: ShareModa
                             }}
                         >
                             {option.icon}
-                            <span className="mt-2 text-xs">{option.name}</span>
+                            <span className="mt-1 text-xs text-center">{option.name}</span>
                         </Button>
                     ))}
                 </div>
 
-                <div className="mt-4 bg-gray-800 p-3 rounded-md">
+                <div className="mt-6 bg-gray-800 p-3 rounded-md">
                     <p className="text-sm text-gray-300 mb-1">Shareable link:</p>
-                    <div className="flex items-center">
+                    <div className="flex items-center gap-2">
                         <code className="text-xs bg-gray-950 p-2 rounded flex-1 overflow-x-auto whitespace-nowrap">{url}</code>
-                        <Button variant="ghost" size="icon" className="ml-2 h-8 w-8" onClick={copyToClipboard}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={copyToClipboard}>
                             {copied ? <Copy className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
                         </Button>
                     </div>
