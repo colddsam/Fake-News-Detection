@@ -15,7 +15,7 @@ interface SearchResult {
   link: string;
 }
 
-export async function fetchSearchResults(query: string = "image incident", numResults: number = 10): Promise<SearchResult[]> {
+export async function fetchSearchResults(query: string = "image incident", numResults: number = 20): Promise<SearchResult[]> {
   const url = "https://www.googleapis.com/customsearch/v1";
   const params = new URLSearchParams({
     key: SEARCH_ENGINE_API_KEY!,
