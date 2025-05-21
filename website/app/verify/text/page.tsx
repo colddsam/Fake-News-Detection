@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { verifyTextNews } from "@/lib/verification"
 import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
+import SpeechToText from "@/components/speech-to-text"
 
 type FormData = { content: string }
 
@@ -25,7 +26,15 @@ export default function VerifyTextPage() {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
+    watch
   } = useForm<FormData>()
+
+  const contentValue = watch("content")
+
+  const handleSpeechToTextContent = (text: string) => {
+    setValue("content", contentValue ? `${contentValue} ${text}` : text)
+  }
 
   const onSubmit = async (data: FormData) => {
     if (!user) {
@@ -79,14 +88,19 @@ export default function VerifyTextPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="relative">
               <Textarea
-                placeholder="Paste news article or claim here..."
-                className="min-h-[200px]"
+                placeholder="Paste news content here or use the microphone to dictate..."
+                className="min-h-[200px] bg-gray-900 border-gray-700 pr-12"
                 {...register("content", {
                   required: "Content is required",
                   validate: value => value.trim().length > 0 || "Please enter valid content"
                 })}
-              />
+                />
+                <div className="absolute right-3 bottom-3">
+                        <SpeechToText shouldOn={user? user.credits>=1 : false} onTranscript={handleSpeechToTextContent} />
+                      </div>
+                    </div>
               {errors.content && (
                 <p className="text-sm font-medium text-destructive">{errors.content.message}</p>
               )}

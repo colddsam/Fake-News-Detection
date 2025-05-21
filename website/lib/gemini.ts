@@ -57,7 +57,6 @@ export async function analyzeWithGemini(prompt: string, imageData?: { mimeType: 
     });
 
     const data = await response.json();
-    console.log("Full API response:", data);
     
     if (data.error) {
       throw new Error(data.error.message);

@@ -42,8 +42,10 @@ type AuthContextType = {
   deductCredits: (amount: number) => Promise<boolean>
   addCredits: (amount: number) => void
   updateProfile: (updates: { name?: string; avatar?: string }) => Promise<void>
-  saveVerification: (response: any) => Promise<void>
+  saveVerification: (response: any) => Promise<string | undefined>
   fetchUserVerifications: (userId: string) => Promise<any[]>  
+  getVerificationById: (id: string) => Promise<any | null>
+
 }
 
 
@@ -87,19 +89,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user])
 
-  const saveVerification = async (response: any): Promise<void> => {
+  const saveVerification = async (response: any): Promise<string | undefined> => {
     if (!user) return
     try {
       const verificationsRef = collection(db, "verifications")
-      await addDoc(verificationsRef, {
+      const result = await addDoc(verificationsRef, {
         userId: user.id,
         ...response,
         timestamp: serverTimestamp(),
       })
+      return result.id
     } catch (error: any) {
       console.error("Error saving verification:", error.message)
+      return undefined
     }
   }
+  
   
 
 
@@ -120,6 +125,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
   
+  const getVerificationById = async (id: string): Promise<any | null> => {
+    try {
+      const docRef = doc(db, "verifications", id)
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        const verificationData=docSnap.data()
+        const userDocRef = doc(db, "users", verificationData.userId)
+        const userDoc = await getDoc(userDocRef)
+        if (userDoc.exists()) {
+          const userData = userDoc.data()
+          
+          return { id: docSnap.id,name:userData.name, ...docSnap.data() }
+        }
+        return { id: docSnap.id,name:"Unverified User", ...docSnap.data() }
+      } else {
+        console.warn("No such verification found with ID:", id)
+        return null
+      }
+    } catch (error: any) {
+      if (error.code === "permission-denied") {
+        toast({
+          title: "Access Denied",
+          description: "You do not have permission to view this verification.",
+          variant: "destructive"
+        })
+      } else {
+        console.error("Error fetching verification by ID:", error.message)
+      }
+      return null
+    }
+  }
   
 
 
@@ -319,7 +355,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     addCredits,
     updateProfile,
     saveVerification,
-    fetchUserVerifications, 
+        fetchUserVerifications, 
+        getVerificationById
   }}
 >
 

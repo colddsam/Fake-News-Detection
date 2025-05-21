@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { verifyImageNews } from "@/lib/verification"
 import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
+import SpeechToText from "@/components/speech-to-text"
 
 export default function VerifyImagePage() {
   const router = useRouter()
@@ -26,8 +27,16 @@ export default function VerifyImagePage() {
     register,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
+    setValue,
+    watch
   } = useForm<{ claim: string }>()
+
+  const contentValue = watch("claim")
+
+  const handleSpeechToTextContent = (text: string) => {
+    setValue("claim", contentValue ? `${contentValue} ${text}` : text)
+  }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -161,11 +170,17 @@ export default function VerifyImagePage() {
                   </div>
                 )}
               </div>
-
+              <div className="relative">
               <Textarea
-                placeholder="Optional: Specific claim shown in this image that you want to verify..."
+                placeholder="Paste news content here or use the microphone to dictate..."
+                className="min-h-[200px] bg-gray-900 border-gray-700 pr-12"
                 {...register("claim")}
-              />
+                />
+                <div className="absolute right-3 bottom-3">
+                                        <SpeechToText shouldOn={user? user.credits>=10 : false} onTranscript={handleSpeechToTextContent} />
+                                      </div>
+              </div>
+              
 
 <div className="flex flex-col space-y-2">
                 <div className="flex items-center justify-between">

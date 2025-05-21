@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { CheckCircle, XCircle, AlertTriangle, ExternalLink, ArrowLeft, User } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, ExternalLink, ArrowLeft, User,Share2, Copy } from 'lucide-react';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -29,15 +29,35 @@ export default function ResultPage() {
   const [result, setResult] = useState<VerificationResult | null>(null)
   const [verificationType, setVerificationType] = useState<string>("")
   const [loading, setLoading] = useState(true)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [copied, setCopied] = useState<boolean>(false)
 
   const [redirecting, setRedirecting] = useState(false)
 
-// useEffect(() => {
-//   if (!isLoading && !user) {
-//     setRedirecting(true)
-//     router.push("/sign-in")
-//   }
-// }, [isLoading, user, router])  
+  
+  const copyToClipboard = () => {
+    const rootDomain = window.location.origin 
+    const url = `${rootDomain}/shared/${copiedId}`
+
+    navigator.clipboard.writeText(url).then(
+      () => {
+        setCopied(true)
+        toast({
+          title: "Link copied!",
+          description: "The verification result link has been copied to your clipboard.",
+        })
+        setTimeout(() => setCopied(false), 2000)
+      },
+      (err) => {
+        console.error("Could not copy text: ", err)
+        toast({
+          title: "Copy failed",
+          description: "Failed to copy the link to clipboard.",
+          variant: "destructive",
+        })
+      },
+    )
+  }
 
   useEffect(() => {
     const loadResult = async () => {
@@ -71,7 +91,8 @@ export default function ResultPage() {
             setResult(parsedResult)
             setVerificationType(storedType)
             if (savedFireStore === "False" && !hasSaved) {
-              await saveVerification({ ...parsedResult, verificationType: storedType })
+              const resultId = await saveVerification({ ...parsedResult, verificationType: storedType })
+              setCopiedId(resultId?resultId:"invalid")
               sessionStorage.setItem("savedFireStore", "True")
               setHasSaved(true)
 
@@ -149,10 +170,17 @@ export default function ResultPage() {
         transition={{ duration: 0.5 }}
         className="max-w-4xl mx-auto"
       >
-        <Button variant="ghost" className="mb-6" onClick={() => router.back()}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
+        <div className="flex justify-between items-center mb-6">
+          <Button variant="ghost" onClick={() => router.back()}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+
+          <Button variant="outline" onClick={copyToClipboard}>
+            {copied ? <Copy className="mr-2 h-4 w-4" /> : <Share2 className="mr-2 h-4 w-4" />}
+            {copied ? "Copied!" : "Share Result"}
+          </Button>
+        </div>
 
         <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center capitalize">
           {verificationType} Verification Result
@@ -235,7 +263,7 @@ export default function ResultPage() {
           </motion.div>
         )}
 
-        <div className="flex justify-center mt-8">
+      <div className="flex justify-center mt-8">
           <Button asChild size="lg">
           <Link href={`/verify/${verificationType || "text"}`}>
   <Button size="lg">Verify Another</Button>

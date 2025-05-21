@@ -13,6 +13,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { verifySocialNews } from "@/lib/verification"
 import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
+import SpeechToText from "@/components/speech-to-text"
 
 type FormData = {
   url: string
@@ -31,8 +32,15 @@ export default function VerifySocialPage() {
     register,
     handleSubmit,
     formState: { errors },
-    setValue
+    setValue,
+    watch
   } = useForm<FormData>()
+
+  const contentValue = watch("claim")
+
+  const handleSpeechToTextContent = (text: string) => {
+    setValue("claim", contentValue ? `${contentValue} ${text}` : text)
+  }
 
   const onSubmit = async (data: FormData) => {
     if (!user) {
@@ -135,11 +143,17 @@ export default function VerifySocialPage() {
               {errors.url && (
                 <p className="text-sm font-medium text-destructive">{errors.url.message}</p>
               )}
-
+              <div className="relative">
               <Textarea
-                placeholder="Optional: specific claim to verify"
+                placeholder="Paste news content here or use the microphone to dictate..."
+                className="min-h-[200px] bg-gray-900 border-gray-700 pr-12"
                 {...register("claim")}
-              />
+                />
+                <div className="absolute right-3 bottom-3">
+                                        <SpeechToText shouldOn={user? user.credits>=5 : false} onTranscript={handleSpeechToTextContent} />
+                                      </div>
+              </div>
+              
 
               <input type="hidden" value={verifyType} {...register("verifyType")} />
               <div className="mt-4 flex flex-col space-y-2">

@@ -18,6 +18,8 @@ import {
   FileText,
   ImageIcon,
   LinkIcon,
+  Share2,
+  Copy,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -44,6 +46,7 @@ export default function ProfilePage() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [verifications, setVerifications] = useState<any[]>([])
   const [loadingHistory, setLoadingHistory] = useState(true)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const {
     register,
@@ -81,22 +84,32 @@ export default function ProfilePage() {
     loadVerifications()
   }, [user])
   
-  if (!user) return null
+  if (!user) return null 
   
   
+  const copyToClipboard = (id: string) => {
+    const rootDomain = window.location.origin 
+    const url = `${rootDomain}/shared/${id}`
 
-  // useEffect(() => {
-  //   console.log("User in reset effect:", user); 
-  //   if (user && typeof user.name === "string" && typeof user.email === "string") {
-  //     reset({
-  //       name: user.name,
-  //       email: user.email,
-  //     });
-  //   }
-  // }, [user, reset]);
-  
-  
-
+    navigator.clipboard.writeText(url).then(
+      () => {
+        setCopiedId(id)
+        toast({
+          title: "Link copied!",
+          description: "The verification result link has been copied to your clipboard.",
+        })
+        setTimeout(() => setCopiedId(null), 2000)
+      },
+      (err) => {
+        console.error("Could not copy text: ", err)
+        toast({
+          title: "Copy failed",
+          description: "Failed to copy the link to clipboard.",
+          variant: "destructive",
+        })
+      },
+    )
+  }
   const getVerificationIcon = (type: string) => {
     switch (type) {
       case "Text":
@@ -359,6 +372,7 @@ export default function ProfilePage() {
                                       </Badge>
                                       <span className="text-xs text-gray-400">{formatDate(verification.timestamp)}</span>
                                     </div>
+                                    <div className="flex items-center space-x-2">
                                     <TooltipProvider>
                                       <Tooltip>
                                         <TooltipTrigger asChild>
@@ -371,7 +385,20 @@ export default function ProfilePage() {
                                           <p>{verification.verdict}</p>
                                         </TooltipContent>
                                       </Tooltip>
-                                    </TooltipProvider>
+                                      </TooltipProvider>
+                                      <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 w-8 p-0"
+                                      onClick={() => copyToClipboard(verification.id)}
+                                    >
+                                      {copiedId === verification.id ? (
+                                        <Copy className="h-4 w-4 text-green-500" />
+                                      ) : (
+                                        <Share2 className="h-4 w-4" />
+                                      )}
+                                    </Button>
+                                  </div>
                                   </div>
   
                                   <h4 className="font-medium mb-1">{verification.title}</h4>
