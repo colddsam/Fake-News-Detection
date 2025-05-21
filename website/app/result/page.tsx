@@ -11,6 +11,7 @@ import Link from "next/link"
 import { useToast } from "@/components/ui/use-toast"
 import TruthScoreChart from "@/components/truth-score-chart"
 import { useAuth } from "@/contexts/auth-context"
+import ShareModal from "@/components/share-modal";
 
 type VerificationResult = {
   title: string
@@ -31,7 +32,8 @@ export default function ResultPage() {
   const [loading, setLoading] = useState(true)
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [copied, setCopied] = useState<boolean>(false)
-
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false)
+  const [shareData, setShareData] = useState<{ title: string; url: string } | null>(null)
   const [redirecting, setRedirecting] = useState(false)
 
   
@@ -114,7 +116,8 @@ export default function ResultPage() {
     }
   
     loadResult()
-  }, [router, toast,isLoading, user])
+  }, [router, toast, isLoading, user])
+  
   
   if (isLoading || redirecting) {
     return (
@@ -122,6 +125,17 @@ export default function ResultPage() {
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary" />
       </div>
     )
+  }
+
+  const handleShareClick = (id: string,title:string) => {
+    const rootDomain = window.location.origin 
+    const url = `${rootDomain}/shared/${id}`
+    setShareData({
+      title: title,
+      url: url,
+    })
+    setCopied(true)
+    setIsShareModalOpen(true)
   }
 
   const getVerdictIcon = () => {
@@ -176,9 +190,8 @@ export default function ResultPage() {
             Back
           </Button>
 
-          <Button variant="outline" onClick={copyToClipboard}>
-            {copied ? <Copy className="mr-2 h-4 w-4" /> : <Share2 className="mr-2 h-4 w-4" />}
-            {copied ? "Copied!" : "Share Result"}
+          <Button variant="outline" onClick={() => handleShareClick(copiedId?copiedId:'invalid',result.title)}>
+            {copied ? <Share2 className="mr-2 h-4 w-4 text-green-500" /> : <Share2 className="mr-2 h-4 w-4 " />}
           </Button>
         </div>
 
@@ -272,6 +285,14 @@ export default function ResultPage() {
           </Button>
         </div>
       </motion.div>
+      {shareData && (
+              <ShareModal
+                open={isShareModalOpen}
+                onOpenChange={setIsShareModalOpen}
+                title={shareData.title}
+                url={shareData.url}
+              />
+            )}
     </div>
   )
 }

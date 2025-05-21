@@ -32,7 +32,7 @@ import Link from "next/link"
 import AnimatedBackground from "@/components/animated-background"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-
+import ShareModal from "@/components/share-modal"
 
 type ProfileFormData = {
   name: string
@@ -46,7 +46,9 @@ export default function ProfilePage() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [verifications, setVerifications] = useState<any[]>([])
   const [loadingHistory, setLoadingHistory] = useState(true)
-  const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [copied, setCopied] = useState<boolean>(false)
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false)
+  const [shareData, setShareData] = useState<{ title: string; url: string } | null>(null)
 
   const {
     register,
@@ -87,29 +89,19 @@ export default function ProfilePage() {
   if (!user) return null 
   
   
-  const copyToClipboard = (id: string) => {
+  
+
+  const handleShareClick = (id: string,title:string) => {
     const rootDomain = window.location.origin 
     const url = `${rootDomain}/shared/${id}`
-
-    navigator.clipboard.writeText(url).then(
-      () => {
-        setCopiedId(id)
-        toast({
-          title: "Link copied!",
-          description: "The verification result link has been copied to your clipboard.",
-        })
-        setTimeout(() => setCopiedId(null), 2000)
-      },
-      (err) => {
-        console.error("Could not copy text: ", err)
-        toast({
-          title: "Copy failed",
-          description: "Failed to copy the link to clipboard.",
-          variant: "destructive",
-        })
-      },
-    )
+    setShareData({
+      title: title,
+      url: url,
+    })
+    setCopied(true)
+    setIsShareModalOpen(true)
   }
+  
   const getVerificationIcon = (type: string) => {
     switch (type) {
       case "Text":
@@ -386,18 +378,22 @@ export default function ProfilePage() {
                                         </TooltipContent>
                                       </Tooltip>
                                       </TooltipProvider>
-                                      <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-8 w-8 p-0"
-                                      onClick={() => copyToClipboard(verification.id)}
-                                    >
-                                      {copiedId === verification.id ? (
-                                        <Copy className="h-4 w-4 text-green-500" />
-                                      ) : (
-                                        <Share2 className="h-4 w-4" />
-                                      )}
-                                    </Button>
+                                      <TooltipProvider>
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8"
+        onClick={() => handleShareClick(verification.id, verification.title)}
+      >
+        {copied ? <Share2 className="h-4 w-4 " /> : <Share2 className="h-4 w-4 text-green-500" />}
+      </Button>
+    </TooltipTrigger>
+
+  </Tooltip>
+</TooltipProvider>
+
                                   </div>
                                   </div>
   
@@ -425,6 +421,14 @@ export default function ProfilePage() {
           </div>
         </motion.div>
       </div>
+      {shareData && (
+        <ShareModal
+          open={isShareModalOpen}
+          onOpenChange={setIsShareModalOpen}
+          title={shareData.title}
+          url={shareData.url}
+        />
+      )}
     </div>
   )
 }

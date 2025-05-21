@@ -1,10 +1,10 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-    siteUrl: 'https://fake-news-detection-inky.vercel.app/', 
+    siteUrl: 'https://truthguardian.vercel.app/', 
     generateRobotsTxt: true,
     generateIndexSitemap: true,
     changefreq: 'weekly',
-    priority: 0.7,
+    priority: 1.0,
     sitemapSize: 5000,
     exclude: ['/api/*'], 
     robotsTxtOptions: {
@@ -15,7 +15,7 @@ module.exports = {
         },
       ],
       additionalSitemaps: [
-        'https://fake-news-detection-inky.vercel.app/sitemap.xml', 
+        'https://truthguardian.vercel.app/sitemap.xml', 
       ],
     },
   };

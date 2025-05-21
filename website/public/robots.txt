@@ -5,7 +5,7 @@ Disallow:
 # Prevent crawling of unnecessary files or folders (optional but recommended)
 Disallow: /api/
 Disallow: /admin/
-Disallow: /checkout/
+Disallow: /shared/
 Disallow: /transaction/
 
 # Specify the preferred domain

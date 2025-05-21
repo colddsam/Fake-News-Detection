@@ -4,14 +4,7 @@ import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import Head from "next/head"
 import { motion } from "framer-motion"
-import {
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  ExternalLink,
-  Share2,
-  Copy
-} from "lucide-react"
+import { CheckCircle, XCircle, AlertTriangle, ExternalLink, Share2,Copy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -26,6 +19,7 @@ import { Badge } from "@/components/ui/badge"
 import TruthScoreChart from "@/components/truth-score-chart"
 import Link from "next/link"
 import { useAuth } from "@/contexts/auth-context"
+import ShareModal from "@/components/share-modal"
 
 type VerificationResult = {
   id: string
@@ -51,6 +45,8 @@ export default function SharedResultPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false)
+  const [shareData, setShareData] = useState<{ title: string; url: string } | null>(null)
 
   function transformDemoResponseToVerificationResult(demo: any): VerificationResult {
     return {
@@ -112,6 +108,16 @@ export default function SharedResultPage() {
         })
       }
     )
+  }
+
+  const handleShareClick = (title:string) => {
+    const url = window.location.href
+    setShareData({
+      title: title,
+      url: url,
+    })
+    setCopied(true)
+    setIsShareModalOpen(true)
   }
 
   const getVerificationTypeIcon = () => {
@@ -201,7 +207,7 @@ export default function SharedResultPage() {
         >
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl md:text-4xl font-bold">Shared Verification Result</h1>
-            <Button variant="outline" onClick={copyToClipboard}>
+            <Button variant="outline" onClick={() => handleShareClick(result.title)}>
               {copied ? <Copy className="mr-2 h-4 w-4" /> : <Share2 className="mr-2 h-4 w-4" />}
               {copied ? "Copied!" : "Copy Link"}
             </Button>
@@ -300,6 +306,14 @@ export default function SharedResultPage() {
           </div>
         </motion.div>
       </div>
+      {shareData && (
+              <ShareModal
+                open={isShareModalOpen}
+                onOpenChange={setIsShareModalOpen}
+                title={shareData.title}
+                url={shareData.url}
+              />
+            )}
     </div>
   )
 }
