@@ -2,17 +2,29 @@
 
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
+import Head from "next/head"
 import { motion } from "framer-motion"
-import { CheckCircle, XCircle, AlertTriangle, ExternalLink, Share2, Copy } from "lucide-react"
+import {
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  ExternalLink,
+  Share2,
+  Copy
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
-import Link from "next/link"
-import TruthScoreChart from "@/components/truth-score-chart"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription
+} from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import AnimatedBackground from "@/components/animated-background"
 import { Badge } from "@/components/ui/badge"
+import TruthScoreChart from "@/components/truth-score-chart"
+import Link from "next/link"
 import { useAuth } from "@/contexts/auth-context"
 
 type VerificationResult = {
@@ -31,50 +43,44 @@ type VerificationResult = {
 }
 
 export default function SharedResultPage() {
-const { getVerificationById } = useAuth()
-
+  const { getVerificationById } = useAuth()
   const params = useParams()
   const { toast } = useToast()
+
   const [result, setResult] = useState<VerificationResult | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-    const [copied, setCopied] = useState(false)
-    
-    function transformDemoResponseToVerificationResult(demo: any): VerificationResult {
-        return {
-          id: demo.id,
-          type: demo.verificationType,
-          title: demo.title,
-          reason: demo.reason,
-          truthScore: demo.truth_score,
-          verdict: demo.verdict,
-          
-      
-          sources: demo.evidence_links.map((url: string) => ({
-            title: new URL(url).hostname.replace("www.", ""),
-            url,
-          })),
-          sharedBy: demo.name,
-          sharedAt: new Date(demo.timestamp.seconds * 1000).toISOString(),
-        }
-      }
-      
+  const [copied, setCopied] = useState(false)
+
+  function transformDemoResponseToVerificationResult(demo: any): VerificationResult {
+    return {
+      id: demo.id,
+      type: demo.verificationType,
+      title: demo.title,
+      reason: demo.reason,
+      truthScore: demo.truth_score,
+      verdict: demo.verdict,
+      sources: demo.evidence_links.map((url: string) => ({
+        title: new URL(url).hostname.replace("www.", ""),
+        url,
+      })),
+      sharedBy: demo.name,
+      sharedAt: new Date(demo.timestamp.seconds * 1000).toISOString(),
+    }
+  }
 
   useEffect(() => {
     const fetchSharedResult = async () => {
-        
       try {
-          const rawId = params.id
-
-            if (!rawId || Array.isArray(rawId)) {
-              setError("Invalid verification ID")
-              setLoading(false)
-              return
-            }
-          const data = await getVerificationById(rawId)
-          const resultObj = transformDemoResponseToVerificationResult(data)
-          setResult(resultObj)
-        
+        const rawId = params.id
+        if (!rawId || Array.isArray(rawId)) {
+          setError("Invalid verification ID")
+          setLoading(false)
+          return
+        }
+        const data = await getVerificationById(rawId)
+        const resultObj = transformDemoResponseToVerificationResult(data)
+        setResult(resultObj)
       } catch (error) {
         console.error("Error fetching shared result:", error)
         setError("Failed to load the shared verification result")
@@ -104,7 +110,7 @@ const { getVerificationById } = useAuth()
           description: "Failed to copy the link to clipboard.",
           variant: "destructive",
         })
-      },
+      }
     )
   }
 
@@ -123,7 +129,6 @@ const { getVerificationById } = useAuth()
 
   const getVerdictIcon = () => {
     if (!result) return null
-
     if (result.truthScore >= 70) {
       return <CheckCircle className="h-12 w-12 text-green-500" />
     } else if (result.truthScore >= 40) {
@@ -135,14 +140,9 @@ const { getVerificationById } = useAuth()
 
   const getVerdictColor = () => {
     if (!result) return ""
-
-    if (result.truthScore >= 70) {
-      return "text-green-500"
-    } else if (result.truthScore >= 40) {
-      return "text-yellow-500"
-    } else {
-      return "text-red-500"
-    }
+    if (result.truthScore >= 70) return "text-green-500"
+    else if (result.truthScore >= 40) return "text-yellow-500"
+    else return "text-red-500"
   }
 
   if (loading) {
@@ -180,6 +180,15 @@ const { getVerificationById } = useAuth()
 
   return (
     <div className="relative min-h-screen py-16">
+      <Head>
+        <title>{`${result.title} - Verdict: ${result.verdict}`}</title>
+        <meta name="description" content={`Shared verification result: ${result.reason}`} />
+        <meta property="og:title" content={`${result.title} - Verdict: ${result.verdict}`} />
+        <meta property="og:description" content={`Truth Score: ${result.truthScore}. ${result.reason}`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={typeof window !== "undefined" ? window.location.href : ""} />
+      </Head>
+
       <div className="absolute inset-0 z-0">
         <AnimatedBackground />
       </div>
@@ -207,7 +216,8 @@ const { getVerificationById } = useAuth()
                   </Badge>
                   <CardTitle className="text-2xl">{result.title}</CardTitle>
                   <CardDescription className="mt-1">
-                    Shared by {result.sharedBy || "Anonymous"} • {new Date(result.sharedAt).toLocaleDateString()}
+                    Shared by {result.sharedBy || "Anonymous"} •{" "}
+                    {new Date(result.sharedAt).toLocaleDateString()}
                   </CardDescription>
                 </div>
               </div>
@@ -233,7 +243,9 @@ const { getVerificationById } = useAuth()
                       <TruthScoreChart score={result.truthScore} />
                     </div>
                     <h2 className="text-2xl font-bold mb-2">Truth Score</h2>
-                    <p className="text-gray-300 text-center">Based on our AI analysis of the provided content</p>
+                    <p className="text-gray-300 text-center">
+                      Based on our AI analysis of the provided content
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -274,7 +286,6 @@ const { getVerificationById } = useAuth()
                           </a>
                         </Button>
                       </div>
-
                     </div>
                   ))}
                 </div>
