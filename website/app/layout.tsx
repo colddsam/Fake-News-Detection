@@ -21,12 +21,19 @@ export const metadata: Metadata = {
   description:
     "Truth Guardian AI uses cutting-edge artificial intelligence to detect fake news from articles, images, and social media posts with remarkable precision.",
   keywords: [
+    "truth guardian",
+    "truthguardian",
+    "Truth Guardian",
     "fake news detection",
     "AI news checker",
     "news authenticity checker",
     "misinformation detection",
     "AI for fake news",
+    "fact checker",
     "colddsam",
+    "samrat kumar das",
+    "samrat",
+    "samrat das",
     "colddsam project",
     "colddsam creation",
     "image verification AI",
@@ -34,6 +41,30 @@ export const metadata: Metadata = {
     "truth verification AI",
     "fact checker tool",
     "AI media scanner",
+  "AI tool to detect fake news",
+  "verify news with AI",
+  "fact-checking software",
+  "real or fake news checker",
+  "AI tool to spot misinformation",
+  "social media post checker",
+  "AI to verify headlines",
+  "check if image is fake",
+  "how to spot deepfakes",
+  "news credibility checker",
+  "detect disinformation with AI",
+  "AI for verifying news sources",
+  "fake image detection tool",
+  "automated fact-checking platform",
+  "news truth checker",
+  "AI that detects fake news",
+  "check if news is real or fake",
+  "AI-based fact checker",
+  "trustworthy news detection AI",
+  "scan articles for fake info",
+  "truth verification AI tool",
+  "online misinformation scanner",
+  "fake content detection AI",
+  "AI credibility checker for content"
   ],
   metadataBase: new URL("https://truthguardian.vercel.app/"),
   openGraph: {
@@ -87,7 +118,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
       <head>
-        {/* Favicons & Meta */}
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
@@ -101,7 +131,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="distribution" content="global" />
         <meta name="revisit-after" content="7 days" />
 
-        {/* Structured Data */}
         
         <script
           type="application/ld+json"
@@ -124,7 +153,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
 
-        {/* Google Analytics */}
         {GA_ID && (
           <>
             <Script
@@ -147,7 +175,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
         <script type="IN/Share" data-url="https://truthguardian.vercel.app"></script>
 
-        {/* Facebook SDK */}
         <Script
           id="facebook-sdk"
           strategy="afterInteractive"
