@@ -122,7 +122,8 @@ export default function ShareModal({ open, onOpenChange, title, url }: ShareModa
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="w-full max-w-full sm:max-w-md bg-gray-900 border border-gray-800 p-5 sm:rounded-xl rounded-none overflow-y-auto max-h-[90vh]"
+        className="fixed inset-0 m-auto w-full max-w-full sm:max-w-md bg-gray-900 border border-gray-800 p-5 sm:rounded-xl rounded-none overflow-y-auto max-h-[90vh] sm:left-1/2 sm:top-1/2 sm:translate-x-[-50%] sm:translate-y-[-50%]"
+
       >
         <DialogHeader>
           <DialogTitle className="text-white text-base sm:text-lg">

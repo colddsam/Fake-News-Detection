@@ -108,6 +108,15 @@ export default function Footer() {
 
         <div className="text-center text-gray-500 text-sm pt-8 border-t border-gray-800">
           <p>&copy; {new Date().getFullYear()} Truth Guardian AI. All rights reserved.</p>
+          <div
+        className="fb-like mt-2"
+        data-href="https://truthguardian.vercel.app/"
+        data-width=""
+        data-layout="standard"
+        data-action="like"
+        data-size="large"
+        data-share="true"
+      />
         </div>
       </div>
     </footer>
