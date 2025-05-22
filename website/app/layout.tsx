@@ -10,19 +10,30 @@ import { AuthProvider } from "@/contexts/auth-context";
 import { Toaster } from "@/components/ui/toaster";
 import AnalyticsWrapper from "@/components/analytics-wrapper";
 
-const inter = Inter({ subsets: ["latin"], display: "swap" });
+const inter = Inter({ subsets: ["latin"] });
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID!;
 const FACEBOOK_APP_ID = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID!;
 
+
 export const metadata: Metadata = {
   title: "Truth Guardian AI - Fake News Detection",
-  description: "Truth Guardian AI uses cutting-edge artificial intelligence to detect fake news from articles, images, and social media posts with remarkable precision.",
+  description:
+    "Truth Guardian AI uses cutting-edge artificial intelligence to detect fake news from articles, images, and social media posts with remarkable precision.",
   keywords: [
-    "fake news detection", "AI news checker", "news authenticity checker",
-    "misinformation detection", "AI for fake news", "colddsam", "colddsam project",
-    "colddsam creation", "image verification AI", "deepfake detection",
-    "truth verification AI", "fact checker tool", "AI media scanner"
+    "fake news detection",
+    "AI news checker",
+    "news authenticity checker",
+    "misinformation detection",
+    "AI for fake news",
+    "colddsam",
+    "colddsam project",
+    "colddsam creation",
+    "image verification AI",
+    "deepfake detection",
+    "truth verification AI",
+    "fact checker tool",
+    "AI media scanner",
   ],
   metadataBase: new URL("https://truthguardian.vercel.app/"),
   openGraph: {
@@ -30,20 +41,23 @@ export const metadata: Metadata = {
     description: "An AI-powered tool to verify news, social posts, and images for misinformation.",
     url: "https://truthguardian.vercel.app/",
     siteName: "Truth Guardian AI",
-    images: [{
-      url: "/content.png",
-      width: 1200,
-      height: 630,
-      alt: "Truth Guardian AI Fake News Detection",
-      type: "image/png",
-    }],
+    images: [
+      {
+        url: "/content.png",
+        width: 1200,
+        height: 630,
+        alt: "Truth Guardian AI Fake News Detection",
+        type: "image/png",
+      },
+    ],
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Truth Guardian AI - Fake News Detection",
-    description: "AI-based misinformation detector. Analyze text, images, and social content in real-time.",
+    description:
+      "AI-based misinformation detector. Analyze text, images, and social content in real-time.",
     site: "@colddsam",
     creator: "@colddsam",
     images: ["/content.png"],
@@ -73,6 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
       <head>
+        {/* Favicons & Meta */}
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
@@ -86,6 +101,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="distribution" content="global" />
         <meta name="revisit-after" content="7 days" />
 
+        {/* Structured Data */}
+        
         <script
           type="application/ld+json"
           suppressHydrationWarning
@@ -95,7 +112,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "@type": "WebSite",
               name: "Truth Guardian AI",
               url: "https://truthguardian.vercel.app/",
-              description: "Truth Guardian AI is an advanced AI platform that helps detect fake news from text, images, and social media posts.",
+              description:
+                "Truth Guardian AI is an advanced AI platform that helps detect fake news from text, images, and social media posts.",
               publisher: {
                 "@type": "Person",
                 name: "colddsam",
@@ -106,6 +124,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
 
+        {/* Google Analytics */}
         {GA_ID && (
           <>
             <Script
@@ -126,34 +145,33 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             />
           </>
         )}
+        <script type="IN/Share" data-url="https://truthguardian.vercel.app"></script>
 
-        {FACEBOOK_APP_ID && (
-          <Script
-            id="facebook-sdk"
-            strategy="lazyOnload"
-            dangerouslySetInnerHTML={{
-              __html: `
-                window.fbAsyncInit = function() {
-                  FB.init({
-                    appId      : '${FACEBOOK_APP_ID}',
-                    xfbml      : true,
-                    version    : 'v22.0'
-                  });
-                  FB.AppEvents.logPageView();
-                };
-                (function(d, s, id){
-                  var js, fjs = d.getElementsByTagName(s)[0];
-                  if (d.getElementById(id)) return;
-                  js = d.createElement(s); js.id = id;
-                  js.src = "https://connect.facebook.net/en_US/sdk.js";
-                  fjs.parentNode.insertBefore(js, fjs);
-                }(document, 'script', 'facebook-jssdk'));
-              `,
-            }}
-          />
-        )}
+        {/* Facebook SDK */}
+        <Script
+          id="facebook-sdk"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.fbAsyncInit = function() {
+                FB.init({
+                  appId      : '${FACEBOOK_APP_ID}',
+                  xfbml      : true,
+                  version    : 'v22.0'
+                });
+                FB.AppEvents.logPageView();
+              };
+              (function(d, s, id){
+                var js, fjs = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id)) return;
+                js = d.createElement(s); js.id = id;
+                js.src = "https://connect.facebook.net/en_US/sdk.js";
+                fjs.parentNode.insertBefore(js, fjs);
+              }(document, 'script', 'facebook-jssdk'));
+            `,
+          }}
+        />
       </head>
-
       <body
         className={`${inter.className} min-h-screen bg-black text-white`}
         itemScope
@@ -166,14 +184,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             enableSystem
             disableTransitionOnChange
           >
-            <div style={{ minHeight: "64px" }}>
-              <Navbar />
-            </div>
+            <Navbar />
             <main>{children}</main>
             <AnalyticsWrapper />
-            <div style={{ minHeight: "200px" }}>
-              <Footer />
-            </div>
+            <Footer />
             <Toaster />
           </ThemeProvider>
         </AuthProvider>

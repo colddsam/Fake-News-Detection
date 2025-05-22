@@ -88,17 +88,17 @@ export default function Footer() {
             <h3 className="font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="https://github.com/colddsam/TRUTH-GUARDIAN-/blob/main/LICENSE" className="text-gray-400 hover:text-primary transition-colors">
+                <Link href="/privacy" className="text-gray-400 hover:text-primary transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="https://github.com/colddsam/TRUTH-GUARDIAN-/blob/main/LICENSE" className="text-gray-400 hover:text-primary transition-colors">
+                <Link href="/terms" className="text-gray-400 hover:text-primary transition-colors">
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link href="https://github.com/colddsam/TRUTH-GUARDIAN-/blob/main/LICENSE" className="text-gray-400 hover:text-primary transition-colors">
+                <Link href="#" className="text-gray-400 hover:text-primary transition-colors">
                   Disclaimer
                 </Link>
               </li>
